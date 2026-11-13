@@ -35,7 +35,7 @@ h3{margin:16px 0 4px}code{word-break:break-all;display:block;background:var(--ca
 <script>
 // ===== CONFIGURE AQUI =====
 const CFG={fb:{apiKey:"AIzaSyBdjm9HcSo9JwUdl0xzrFRKi0yTWMD7R8E",authDomain:"camila-site-loja.firebaseapp.com",projectId:"camila-site-loja",appId:"1:53855941830:web:66677df7175105bbb4d3c7"},
-pixKey:"+5551999106610",pixNome:"CAMILA FLECK NOETZOLD",pixCidade:"IVOTI",loja:"Camila Conservas",pagto:"Pix Sicredi"};
+pixKey:"+5551999106610",pixNome:"CAMILA FLECK NOETZOLD",pixCidade:"IVOTI",loja:"Camila Conservas",pagto:"Pix Sicredi",ntfy:"camila-pedidos-6793ec7d695fc7bff948"};
 // ==========================
 firebase.initializeApp(CFG.fb);const db=firebase.firestore(),au=firebase.auth();
 const $=s=>document.querySelector(s),R=n=>"R$ "+Number(n).toFixed(2).replace(".",","),
@@ -92,6 +92,7 @@ const num=Math.floor(1000+Math.random()*9000),it=items(),t=total();$("#ok").disa
 let rid="demo"+num;const od={num,nome,tel,obs,itens:it,total:t,pago:false,retirado:false,impresso:false};try{if(!DEMO)rid=(await db.collection("pedidos").add({...od,criado:firebase.firestore.FieldValue.serverTimestamp()})).id}
 catch(e){$("#ok").disabled=false;return alert("Erro ao enviar o pedido. Tente novamente.")}
 const code=pix(t,"PED"+num);C={};mine(rid,DEMO?{...od,criado:Date.now()}:null);
+if(!DEMO&&CFG.ntfy)try{fetch("https://ntfy.sh/"+CFG.ntfy+"?title="+encodeURIComponent("Novo pedido")+"&priority=high&tags=shopping_cart",{method:"POST",mode:"no-cors",keepalive:true,body:"Pedido #"+num+" · "+R(t)}).catch(()=>{})}catch(e){}
 $("#m").innerHTML=`<h3>Pedido #${num} enviado ✔</h3><p>Pague <b>${R(t)}</b> via Pix copia e cola e retire na loja em 30 minutos, informando o número do pedido.</p><p class="mut">📍 Rua Peru, 449 · Cidade Nova, Ivoti – RS · <a href="${MAP}" target="_blank" rel="noopener">Ver no mapa</a></p><code>${code}</code><button onclick="navigator.clipboard.writeText('${code}').then(()=>this.textContent='Copiado!')">Copiar código Pix</button><div class="nc"><b>Não é necessário enviar o comprovante</b><span>Confirmamos o seu pagamento por aqui.</span></div><hr style="border:0;border-top:1px solid var(--bd);margin:20px 0"><button onclick="go('')">Fazer novo pedido</button> <button class="s" onclick="go('#meus')">Ver meus pedidos</button>`}}
 // ---- MEUS PEDIDOS ----
 const OPEN=new Set(),tg=(el,k)=>{const d=el.nextElementSibling,o=d.style.display=="none";d.style.display=o?"block":"none";el.querySelector(".ar").textContent=o?"▴ Ocultar detalhes":"▾ Ver detalhes";o?OPEN.add(k):OPEN.delete(k)};
